@@ -1,0 +1,101 @@
+mysql> INSERT INTO Console (ConsoleName, Manufacturer, ReleaseYear)
+    -> VALUES ('Nintendo 64', 'Nintendo', 1996);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM Console;
++-----------+----------------+--------------+-------------+
+| ConsoleID | ConsoleName    | Manufacturer | ReleaseYear |
++-----------+----------------+--------------+-------------+
+|         1 | Super Nintendo | Nintendo     |        1991 |
+|         2 | Sega Genesis   | Sega         |        1989 |
+|         3 | PlayStation    | Sony         |        1994 |
+|         4 | Nintendo 64    | Nintendo     |        1996 |
++-----------+----------------+--------------+-------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Console;
++-----------+----------------+--------------+-------------+
+| ConsoleID | ConsoleName    | Manufacturer | ReleaseYear |
++-----------+----------------+--------------+-------------+
+|         1 | Super Nintendo | Nintendo     |        1991 |
+|         2 | Sega Genesis   | Sega         |        1989 |
+|         3 | PlayStation    | Sony         |        1994 |
+|         4 | Nintendo 64    | Nintendo     |        1996 |
++-----------+----------------+--------------+-------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Game
+    -> WHERE Title = 'Sonic the Hedgehog';
++--------+--------------------+------------+-------+-----------+
+| GameID | Title              | Genre      | Price | ConsoleID |
++--------+--------------------+------------+-------+-----------+
+|      5 | Sonic the Hedgehog | Platformer | 20.00 |         2 |
++--------+--------------------+------------+-------+-----------+
+1 row in set (0.00 sec)
+
+mysql> UPDATE Game
+    -> SET Price = 15.00
+    -> WHERE GameID = 5;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM Game
+    -> WHERE GameID = 5;
++--------+--------------------+------------+-------+-----------+
+| GameID | Title              | Genre      | Price | ConsoleID |
++--------+--------------------+------------+-------+-----------+
+|      5 | Sonic the Hedgehog | Platformer | 15.00 |         2 |
++--------+--------------------+------------+-------+-----------+
+1 row in set (0.00 sec)
+
+mysql> DELETE FROM Game
+    -> WHERE Title = 'Street Fighter II';
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`retro_replay`.`TradeIn`, CONSTRAINT `TradeIn_ibfk_1` FOREIGN KEY (`GameID`) REFERENCES `Game` (`GameID`))
+mysql> INSERT INTO TradeIn (GameID, CustomerName, TradeInDate, CreditAmount)
+    -> VALUES (5, 'Jordan Miles', '2026-09-20', 10.00);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM TradeIn;
++-----------+--------+--------------+-------------+--------------+
+| TradeInID | GameID | CustomerName | TradeInDate | CreditAmount |
++-----------+--------+--------------+-------------+--------------+
+|         1 |      1 | Maya Chen    | 2026-08-01  |        15.00 |
+|         2 |      4 | Devon Brooks | 2026-08-03  |        10.00 |
+|         3 |      5 | Jordan Miles | 2026-09-20  |        10.00 |
++-----------+--------+--------------+-------------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> UPDATE Game
+    -> SET Price = Price - 5.00
+    -> WHERE Genre = 'RPG';
+Query OK, 2 rows affected (0.00 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> SELECT * FROM Game
+    -> WHERE Genre = 'RPG';
++--------+-------------------+-------+-------+-----------+
+| GameID | Title             | Genre | Price | ConsoleID |
++--------+-------------------+-------+-------+-----------+
+|      1 | Chrono Trigger    | RPG   | 40.00 |         1 |
+|      6 | Final Fantasy VII | RPG   | 45.00 |         3 |
++--------+-------------------+-------+-------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> DELETE FROM TradeIn
+    -> WHERE TradeInID = 3;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> DELETE FROM TradeIn
+    -> WHERE TradeInID = 3;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM TradeIn;
++-----------+--------+--------------+-------------+--------------+
+| TradeInID | GameID | CustomerName | TradeInDate | CreditAmount |
++-----------+--------+--------------+-------------+--------------+
+|         1 |      1 | Maya Chen    | 2026-08-01  |        15.00 |
+|         2 |      4 | Devon Brooks | 2026-08-03  |        10.00 |
++-----------+--------+--------------+-------------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> notee;
