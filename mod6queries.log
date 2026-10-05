@@ -1,0 +1,114 @@
+mysql> tee mod6queries.log;
+mysql> SELECT FirstName, LastName, ClassesAttended,
+    ->        MemberTier(ClassesAttended) AS Tier
+    -> FROM Member;
+ERROR 1305 (42000): FUNCTION fitness_studio.MemberTier does not exist
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE FUNCTION MemberTier(Attended INT)
+    -> RETURNS VARCHAR(10)
+    -> DETERMINISTIC
+    -> BEGIN
+    ->     DECLARE Tier VARCHAR(10);
+    -> 
+    ->     IF Attended >= 30 THEN
+    ->         SET Tier = 'Gold';
+    ->     ELSEIF Attended >= 10 THEN
+    ->         SET Tier = 'Silver';
+    ->     ELSE
+    ->         SET Tier = 'Bronze';
+    ->     END IF;
+    -> 
+    ->     RETURN Tier;
+    -> END $$
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> SELECT FirstName, LastName, ClassesAttended,
+    ->        MemberTier(ClassesAttended) AS Tier
+    -> FROM Member;
++-----------+----------+-----------------+--------+
+| FirstName | LastName | ClassesAttended | Tier   |
++-----------+----------+-----------------+--------+
+| Kayla     | Ortiz    |              32 | Gold   |
+| Dana      | Petrov   |               8 | Bronze |
+| Miguel    | Alvarez  |               2 | Bronze |
++-----------+----------+-----------------+--------+
+3 rows in set (0.00 sec)
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE PROCEDURE SignUpForClass(
+    ->     IN p_MemberID INT,
+    ->     IN p_ClassID INT
+    -> )
+    -> BEGIN
+    ->     UPDATE Member
+    ->     SET ClassesAttended = ClassesAttended + 1
+    ->     WHERE MemberID = p_MemberID;
+    -> 
+    ->     SELECT 'Member signed up successfully' AS Message;
+    -> END $$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 
+mysql> DELIMITER ;CALL SignUpForClass(2, 2);
+mysql> SELECT FirstName, LastName, ClassesAttended
+    -> FROM Member
+    -> WHERE MemberID = 2;
+    -> \c
+mysql> DELIMITER ;
+mysql> CALL SignUpForClass(2, 2);
++-------------------------------+
+| Message                       |
++-------------------------------+
+| Member signed up successfully |
++-------------------------------+
+1 row in set (0.01 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> SELECT FirstName, LastName, ClassesAttended
+    -> FROM Member
+    -> WHERE MemberID = 2;
++-----------+----------+-----------------+
+| FirstName | LastName | ClassesAttended |
++-----------+----------+-----------------+
+| Dana      | Petrov   |               9 |
++-----------+----------+-----------------+
+1 row in set (0.00 sec)
+
+mysql> CALL SignUpForClass(1, 1);
++-------------------------------+
+| Message                       |
++-------------------------------+
+| Member signed up successfully |
++-------------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL SignUpForClass(3, 3);
++-------------------------------+
+| Message                       |
++-------------------------------+
+| Member signed up successfully |
++-------------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT FirstName, LastName, ClassesAttended,
+    ->        MemberTier(ClassesAttended) AS Tier
+    -> FROM Member;
++-----------+----------+-----------------+--------+
+| FirstName | LastName | ClassesAttended | Tier   |
++-----------+----------+-----------------+--------+
+| Kayla     | Ortiz    |              33 | Gold   |
+| Dana      | Petrov   |               9 | Bronze |
+| Miguel    | Alvarez  |               3 | Bronze |
++-----------+----------+-----------------+--------+
+3 rows in set (0.00 sec)
+
+mysql> notee;
