@@ -1,0 +1,97 @@
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE FUNCTION MemberYearsActive(p_JoinDate DATE)
+    -> RETURNS INT
+    -> DETERMINISTIC
+    -> BEGIN
+    ->     RETURN TIMESTAMPDIFF(YEAR, p_JoinDate, CURDATE());
+    -> END $$
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> SELECT FirstName, LastName,
+    ->        MemberYearsActive(JoinDate) AS YearsActive
+    -> FROM Member;
++-----------+----------+-------------+
+| FirstName | LastName | YearsActive |
++-----------+----------+-------------+
+| Kayla     | Ortiz    |           3 |
+| Dana      | Petrov   |           2 |
+| Miguel    | Alvarez  |           1 |
++-----------+----------+-------------+
+3 rows in set (0.00 sec)
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE FUNCTION ClassDiscount(p_Tier VARCHAR(10))
+    -> RETURNS DECIMAL(4,2)
+    -> DETERMINISTIC
+    -> BEGIN
+    ->     IF p_Tier = 'Gold' THEN
+    ->         RETURN 0.20;
+    ->     ELSEIF p_Tier = 'Silver' THEN
+    ->         RETURN 0.10;
+    ->     ELSE
+    ->         RETURN 0.00;
+    ->     END IF;
+    -> END $$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> SELECT FirstName, LastName,
+    ->        ClassDiscount(MemberTier(ClassesAttended)) AS Discount
+    -> FROM Member;
++-----------+----------+----------+
+| FirstName | LastName | Discount |
++-----------+----------+----------+
+| Kayla     | Ortiz    |     0.20 |
+| Dana      | Petrov   |     0.00 |
+| Miguel    | Alvarez  |     0.00 |
++-----------+----------+----------+
+3 rows in set (0.00 sec)
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE PROCEDURE AddNewMember(
+    ->     IN p_FirstName VARCHAR(50),
+    ->     IN p_LastName VARCHAR(50),
+    ->     IN p_JoinDate DATE
+    -> )
+    -> BEGIN
+    ->     INSERT INTO Member (FirstName, LastName, JoinDate, ClassesAttended)
+    ->     VALUES (p_FirstName, p_LastName, p_JoinDate, 0);
+    -> 
+    ->     SELECT *
+    ->     FROM Member
+    ->     WHERE MemberID = LAST_INSERT_ID();
+    -> END $$
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> CALL AddNewMember('VeShawn', 'Owens', CURDATE());
++----------+-----------+----------+------------+-----------------+
+| MemberID | FirstName | LastName | JoinDate   | ClassesAttended |
++----------+-----------+----------+------------+-----------------+
+|        4 | VeShawn   | Owens    | 2026-10-05 |               0 |
++----------+-----------+----------+------------+-----------------+
+1 row in set (0.01 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> SELECT FirstName, LastName, ClassesAttended,
+    ->        MemberTier(ClassesAttended) AS Tier
+    -> FROM Member;
++-----------+----------+-----------------+--------+
+| FirstName | LastName | ClassesAttended | Tier   |
++-----------+----------+-----------------+--------+
+| Kayla     | Ortiz    |              33 | Gold   |
+| Dana      | Petrov   |               9 | Bronze |
+| Miguel    | Alvarez  |               3 | Bronze |
+| VeShawn   | Owens    |               0 | Bronze |
++-----------+----------+-----------------+--------+
+4 rows in set (0.00 sec)
+
+mysql> notee;
